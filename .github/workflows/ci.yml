@@ -22,6 +22,12 @@ jobs:
           fetch-depth: 0 # Necesario para DVC para obtener el historial completo
           lfs: true
 
+      - name: Descargar dataset desde Google Drive
+        run: |
+          curl -L \
+            "https://drive.google.com/uc?export=download&id=16__jHyBkvSlL-VSCKyC-9cMC8ZmXNMnY" \
+            -o data/raw/UCI_Credit_Card.csv
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
