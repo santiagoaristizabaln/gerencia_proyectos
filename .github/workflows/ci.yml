@@ -28,6 +28,14 @@ jobs:
             "https://drive.google.com/uc?export=download&id=16__jHyBkvSlL-VSCKyC-9cMC8ZmXNMnY" \
             -o data/raw/UCI_Credit_Card.csv
 
+        - name: DVC pull (Descargar Artefactos)
+        run: |
+          if [ -d .dvc ] || [ -f dvc.yaml ]; then
+            dvc pull || (echo "::error::dvc pull failed to retrieve data"; exit 1)
+          else
+            echo "No DVC project detected. Skipping DVC pull."
+          fi
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
