@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  push:
+    # Ejecuta el pipeline en los pushes a main y tu rama de trabajo
+    branches: [ main ]
+  pull_request:
+    # Ejecuta el pipeline cuando se crea un PR contra estas ramas
+    branches: [ main ]
+  # Permite ejecutar la acción manualmente desde la UI de GitHub
+  workflow_dispatch:
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository and DVC files
+        # Usa LFS y DVC para checkout de archivos grandes y apuntadores
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Necesario para DVC para obtener el historial completo
+          lfs: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10' # Versión estable de Python
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install core and dev dependencies
+        run: |
+          python -m pip install --upgrade pip
+          
+          # Instalación de dependencias del proyecto (DVC, MLflow, Scikit-learn, Pandas, etc.)
+          pip install dvc==3.* mlflow==2.* pandas==2.* scikit-learn==1.* joblib==1.* numpy==1.*
+          
+          # Instalación de herramientas de calidad (pytest para test/test_schema.py)
+          pip install pre-commit==3.* flake8==7.* pytest==8.*
+
+      - name: Linting and Code Style Check
+        run: |
+          flake8 src/ tests/
+
+      - name: Run Schema Tests
+        run: |
+          pytest tests/test_schema.py
+
+      - name: DVC repro (Run MLOps Pipeline)
+        run: |
+          # El comando dvc repro ejecuta las etapas prepare y train
+          if [ -d .dvc ] || [ -f dvc.yaml ]; then
+            dvc repro --no-commit || (echo "::error::dvc repro failed in pipeline execution"; exit 1)
+          else
+            echo "No DVC project detected. Skipping dvc repro."
+          fi
