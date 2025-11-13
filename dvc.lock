@@ -1,0 +1,78 @@
+schema: '2.0'
+stages:
+  limpieza:
+    cmd: python3 src/limpieza.py
+    deps:
+    - path: data/raw/UCI_Credit_Card.csv
+      hash: md5
+      md5: 940b416bb13a9b24bb5c9e1589284005
+      size: 2862995
+    - path: src/limpieza.py
+      hash: md5
+      md5: bfc1e4f088836646a7fd82c2c8048ff7
+      size: 2690
+    outs:
+    - path: data/processed/UCI_Credit_Card_Limpio.csv
+      hash: md5
+      md5: aeca82681210f9a62d735a5d490eaa24
+      size: 3643902
+  processed:
+    cmd: python3 src/processed.py
+    deps:
+    - path: src/processed.py
+      hash: md5
+      md5: 3682d8ee60000c5ffa388f9988dc01d2
+      size: 3138
+    outs:
+    - path: data/processed/X_test_processed.npy
+      hash: md5
+      md5: e345c8d016a3cf4510985ed93efcb97b
+      size: 1678645
+    - path: data/processed/X_train_processed.npy
+      hash: md5
+      md5: 30fa3bbbe8740f2e11760a5465a847ea
+      size: 6712786
+    - path: data/processed/preprocessor.pkl
+      hash: md5
+      md5: 7d3b7695af0413485e424acb2e35e7ee
+      size: 4398
+    - path: data/processed/y_test.npy
+      hash: md5
+      md5: 35cebfafd76d7b220af4013b8a417e02
+      size: 48072
+    - path: data/processed/y_train.npy
+      hash: md5
+      md5: f421d654f0672b8fc14bd6052306cdb4
+      size: 191904
+  testeo:
+    cmd: python3 src/testeo.py
+    deps:
+    - path: data/processed/X_test_processed.npy
+      hash: md5
+      md5: e345c8d016a3cf4510985ed93efcb97b
+      size: 1678645
+    - path: data/processed/X_train_processed.npy
+      hash: md5
+      md5: 30fa3bbbe8740f2e11760a5465a847ea
+      size: 6712786
+    - path: data/processed/y_test.npy
+      hash: md5
+      md5: 35cebfafd76d7b220af4013b8a417e02
+      size: 48072
+    - path: data/processed/y_train.npy
+      hash: md5
+      md5: f421d654f0672b8fc14bd6052306cdb4
+      size: 191904
+    - path: src/testeo.py
+      hash: md5
+      md5: 2c383e5fc3c3a5ca7f461c85982b5238
+      size: 3935
+    outs:
+    - path: metrics.json
+      hash: md5
+      md5: 9a67b04b02b557dee1a5d500ff77bbd5
+      size: 90
+    - path: models/modelo_regresion_logistica.pkl
+      hash: md5
+      md5: ed5c136565407cd9112cdc6bf664f2cf
+      size: 1563

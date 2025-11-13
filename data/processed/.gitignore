@@ -1,0 +1,6 @@
+/UCI_Credit_Card_Limpio.csv
+/X_train_processed.npy
+/X_test_processed.npy
+/y_train.npy
+/y_test.npy
+/preprocessor.pkl

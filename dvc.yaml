@@ -1,0 +1,30 @@
+stages:
+  limpieza:
+    cmd: python3 src/limpieza.py
+    deps:
+      - data/raw/UCI_Credit_Card.csv
+      - src/limpieza.py
+    outs:
+      - data/processed/UCI_Credit_Card_Limpio.csv
+  processed:
+    cmd: python3 src/processed.py
+    deps:
+      - src/processed.py
+    outs:
+      - data/processed/X_train_processed.npy
+      - data/processed/X_test_processed.npy
+      - data/processed/y_train.npy
+      - data/processed/y_test.npy
+      - data/processed/preprocessor.pkl
+  testeo:
+    cmd: python3 src/testeo.py
+    deps:
+      - src/testeo.py
+      - data/processed/X_train_processed.npy
+      - data/processed/X_test_processed.npy
+      - data/processed/y_train.npy
+      - data/processed/y_test.npy
+    outs:
+      - models/modelo_regresion_logistica.pkl
+    metrics:
+      - metrics.json
