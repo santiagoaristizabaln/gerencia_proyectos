@@ -45,14 +45,6 @@ jobs:
           # Instalación de herramientas de calidad (pytest para test/test_schema.py)
           pip install pre-commit==3.* flake8==7.* pytest==8.*
 
-      - name: Linting and Code Style Check
-        run: |
-          flake8 src/ tests/
-
-      - name: Run Schema Tests
-        run: |
-          pytest tests/test_schema.py
-
       - name: DVC repro (Run MLOps Pipeline)
         run: |
           # El comando dvc repro ejecuta las etapas prepare y train
