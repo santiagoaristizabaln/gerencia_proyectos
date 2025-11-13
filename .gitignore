@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env
+# Jupyter
+.ipynb_checkpoints/
+# DVC (¡no ignores .dvc ni *.dvc!)
+!.dvc
+!.dvc/**
+!.dvcignore
+# Artefactos locales (no versionar)
+mlruns/
+models/*.pkl
+metrics.json
+# OS
+.DS_Store
+Proyecto_final_3.ipynb
