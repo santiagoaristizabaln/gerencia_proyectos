@@ -16,30 +16,15 @@ jobs:
 
     steps:
       - name: Checkout repository and DVC files
-        # Usa LFS y DVC para checkout de archivos grandes y apuntadores
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Necesario para DVC para obtener el historial completo
+          fetch-depth: 0
           lfs: true
-
-      - name: Descargar dataset desde Google Drive
-        run: |
-          curl -L \
-            "https://drive.google.com/uc?export=download&id=16__jHyBkvSlL-VSCKyC-9cMC8ZmXNMnY" \
-            -o data/raw/UCI_Credit_Card.csv
-
-        - name: DVC pull (Descargar Artefactos)
-        run: |
-          if [ -d .dvc ] || [ -f dvc.yaml ]; then
-            dvc pull || (echo "::error::dvc pull failed to retrieve data"; exit 1)
-          else
-            echo "No DVC project detected. Skipping DVC pull."
-          fi
-
+          
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10' # Versión estable de Python
+          python-version: '3.10'
 
       - name: Cache pip dependencies
         uses: actions/cache@v4
@@ -52,16 +37,28 @@ jobs:
       - name: Install core and dev dependencies
         run: |
           python -m pip install --upgrade pip
-          
-          # Instalación de dependencias del proyecto (DVC, MLflow, Scikit-learn, Pandas, etc.)
           pip install dvc==3.* mlflow==2.* pandas==2.* scikit-learn==1.* joblib==1.* numpy==1.*
-          
-          # Instalación de herramientas de calidad (pytest para test/test_schema.py)
           pip install pre-commit==3.* flake8==7.* pytest==8.*
+
+      - name: Descargar dataset desde Google Drive
+        run: |
+          # Descarga el archivo UCI_Credit_Card.csv
+          curl -L \
+            "https://drive.google.com/uc?export=download&id=16__jHyBkvSlL-VSCKyC-9cMC8ZmXNMnY" \
+            -o data/raw/UCI_Credit_Card.csv
+      
+      - name: DVC pull (Descargar Artefactos Rastreados)
+        run: |
+          # Descarga todos los demás archivos rastreados por DVC (modelos, datos intermedios)
+          if [ -d .dvc ] || [ -f dvc.yaml ]; then
+            dvc pull || (echo "::error::dvc pull failed to retrieve data"; exit 1)
+          else
+            echo "No DVC project detected. Skipping DVC pull."
+          fi
 
       - name: DVC repro (Run MLOps Pipeline)
         run: |
-          # El comando dvc repro ejecuta las etapas prepare y train
+          # Ahora dvc repro debería encontrar todos los archivos necesarios.
           if [ -d .dvc ] || [ -f dvc.yaml ]; then
             dvc repro --no-commit || (echo "::error::dvc repro failed in pipeline execution"; exit 1)
           else
