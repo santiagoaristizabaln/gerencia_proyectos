@@ -2,12 +2,9 @@ name: CI
 
 on:
   push:
-    # Ejecuta el pipeline en los pushes a main y tu rama de trabajo
     branches: [ main ]
   pull_request:
-    # Ejecuta el pipeline cuando se crea un PR contra estas ramas
     branches: [ main ]
-  # Permite ejecutar la acción manualmente desde la UI de GitHub
   workflow_dispatch:
 
 jobs:
@@ -37,32 +34,33 @@ jobs:
       - name: Install core and dev dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install dvc[gdrive]==3.* mlflow==2.* pandas==2.* scikit-learn==1.* joblib==1.* numpy==1.*
-          pip install pre-commit==3.* flake8==7.* pytest==8.*
+          pip install "dvc[gs,s3]==3." "mlflow==2." "pandas==2." "scikit-learn==1." "joblib==1." "numpy==1."
+          pip install "pre-commit==3." "flake8==7." "pytest==8.*"
+
+      - name: Crear carpetas base (por si acaso)
+        run: |
+          mkdir -p data/raw data/processed models
 
       - name: Descargar dataset desde Google Drive
         run: |
-          # Descarga el archivo UCI_Credit_Card.csv
-          curl -L \
-            "https://drive.google.com/uc?export=download&id=16__jHyBkvSlL-VSCKyC-9cMC8ZmXNMnY" \
-            -o data/raw/UCI_Credit_Card.csv
-
-      - name: Configurar Remoto DVC
-        run: |
-          dvc remote add -d gdrive-remote gdrive://https://drive.google.com/file/d/16__jHyBkvSlL-VSCKyC-9cMC8ZmXNMnY/view?usp=share_link
+          curl -L             "https://drive.google.com/uc?export=download&id=16__jHyBkvSlL-VSCKyC-9cMC8ZmXNMnY"             -o data/raw/UCI_Credit_Card.csv
       
-      - name: DVC pull (Descargar Artefactos Rastreados)
+      - name: DVC pull (si hay remoto configurado)
         run: |
-          # Descarga todos los demás archivos rastreados por DVC (modelos, datos intermedios)
           if [ -d .dvc ] || [ -f dvc.yaml ]; then
-            dvc pull || (echo "::error::dvc pull failed to retrieve data"; exit 1)
+            # Solo intentamos dvc pull si existe al menos un remote configurado
+            if dvc remote list | grep -q .; then
+              echo "Remote DVC detectado. Ejecutando dvc pull..."
+              dvc pull || (echo "::warning::dvc pull failed to retrieve data, se recalcularán artefactos con dvc repro"; exit 0)
+            else
+              echo "No hay remoto DVC configurado. Se omite 'dvc pull' y 'dvc repro' recalculará los artefactos."
+            fi
           else
             echo "No DVC project detected. Skipping DVC pull."
           fi
 
       - name: DVC repro (Run MLOps Pipeline)
         run: |
-          # Ahora dvc repro debería encontrar todos los archivos necesarios.
           if [ -d .dvc ] || [ -f dvc.yaml ]; then
             dvc repro --no-commit || (echo "::error::dvc repro failed in pipeline execution"; exit 1)
           else
