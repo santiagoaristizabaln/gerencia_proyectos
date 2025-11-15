@@ -40,6 +40,12 @@ jobs:
           pip install dvc==3.* mlflow==2.* pandas==2.* scikit-learn==1.* joblib==1.* numpy==1.*
           pip install pre-commit==3.* flake8==7.* pytest==8.*
 
+      - name: DVC Config and Authenticate
+        uses: iterative/setup-dvc@v1
+        with:
+          version: 3.x
+          gdrive-user-credentials: ${{ secrets.GDRIVE_CREDENTIALS }}
+
       - name: Descargar dataset desde Google Drive
         run: |
           # Descarga el archivo UCI_Credit_Card.csv
