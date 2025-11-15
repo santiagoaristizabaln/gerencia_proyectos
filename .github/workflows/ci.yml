@@ -34,8 +34,9 @@ jobs:
       - name: Install core and dev dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install "dvc[gs,s3]==3." "mlflow==2." "pandas==2." "scikit-learn==1." "joblib==1." "numpy==1."
-          pip install "pre-commit==3." "flake8==7." "pytest==8.*"
+          # Instalamos DVC y librerías principales (sin patrones raros de versión)
+          pip install "dvc[gs,s3]" mlflow pandas scikit-learn joblib numpy
+          pip install pre-commit flake8 pytest
 
       - name: Crear carpetas base (por si acaso)
         run: |
