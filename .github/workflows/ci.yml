@@ -46,6 +46,10 @@ jobs:
           curl -L \
             "https://drive.google.com/uc?export=download&id=16__jHyBkvSlL-VSCKyC-9cMC8ZmXNMnY" \
             -o data/raw/UCI_Credit_Card.csv
+
+      - name: Configurar Remoto DVC
+        run: |
+          dvc remote add -d gdrive-remote gdrive://https://drive.google.com/file/d/16__jHyBkvSlL-VSCKyC-9cMC8ZmXNMnY/view?usp=share_link
       
       - name: DVC pull (Descargar Artefactos Rastreados)
         run: |
